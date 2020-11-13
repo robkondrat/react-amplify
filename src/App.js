@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
 import { withAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
-import { API, graphqlOperation, Analytics, Auth } from 'aws-amplify';
+import { API, graphqlOperation, Analytics, Auth, Storage } from 'aws-amplify';
+import { S3Album } from "aws-amplify-react";
+import "@aws-amplify/ui/dist/style.css";
 
 
 const listTodos = `query listTodos {
@@ -34,6 +36,19 @@ class App extends Component {
     } catch (err) {
       console.log("error getting user: ", err);
     }
+  }
+
+  uploadFile = (evt) => {
+    const file = evt.target.files[0];
+    const name = file.name;
+    Storage.put(name, file).then(() => {
+      this.setState({ file: name });
+    })
+  }
+
+  fileToKey(data) {
+    const { name, size, type } = data;
+    return 'test_' + name;
   }
 
   recordEvent = () => {
@@ -70,6 +85,9 @@ class App extends Component {
         <button onClick={this.listQuery}>GraphQL List Query</button>
         <button onClick={this.todoMutation}>GraphQL Todo Mutation</button>
         <button onClick={this.recordEvent}>Record Event</button>
+        <p> Pick a file</p>
+        <input type="file" onChange={this.uploadFile} />
+        <S3Album path="pictures/" picker fileToKey={this.fileToKey} />
       </div>
     );
   }
