@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
 import { withAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
-import { API, graphqlOperation } from 'aws-amplify';
+import { API, graphqlOperation, Analytics, Auth } from 'aws-amplify';
+
 
 const listTodos = `query listTodos {
   listTodos{
@@ -25,6 +26,25 @@ const addTodo = `mutation createTodo($name:String! $description:String!) {
 }`;
 
 class App extends Component {
+  state = { username: "" };
+  async componentDidMount() {
+    try {
+      const user = await Auth.currentAuthenticatedUser();
+      this.setState({ username: user.username });
+    } catch (err) {
+      console.log("error getting user: ", err);
+    }
+  }
+
+  recordEvent = () => {
+    Analytics.record({
+      name: "My test event",
+      attributes: {
+        username: this.state.username 
+      }
+    });
+  };
+
   todoMutation = async () => {
     const todoDetails = {
       name: "Party tonight!",
@@ -41,6 +61,7 @@ class App extends Component {
     alert(JSON.stringify(allTodos));
   };
 
+  
   render() {
     return (
       <div className="App">
@@ -48,7 +69,7 @@ class App extends Component {
         <p> Click a button </p>
         <button onClick={this.listQuery}>GraphQL List Query</button>
         <button onClick={this.todoMutation}>GraphQL Todo Mutation</button>
-
+        <button onClick={this.recordEvent}>Record Event</button>
       </div>
     );
   }

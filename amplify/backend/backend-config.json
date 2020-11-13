@@ -23,5 +23,11 @@
         }
       }
     }
+  },
+  "analytics": {
+    "reactamplify": {
+      "service": "Pinpoint",
+      "providerPlugin": "awscloudformation"
+    }
   }
 }
